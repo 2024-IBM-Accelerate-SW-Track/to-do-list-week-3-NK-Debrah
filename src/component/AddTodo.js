@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Button, TextField } from "@mui/material";
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 class AddTodo extends Component {
   // Create a local react state of the this component with both content date property set to nothing.
@@ -7,9 +9,17 @@ class AddTodo extends Component {
     super();
     this.state = {
       content: "",
-      date: ""
+      date: "",
+      due: null
     };
   }
+
+  handleDateChange = (event) => {
+    this.setState({
+      due: new Date(event).toLocaleDateString()
+    });
+  };
+  
   // The handleChange function updates the react state with the new input value provided from the user and the current date/time.
   // "event" is the defined action a user takes. In this case, the event is triggered when the user types something
   // into the text field.
@@ -26,13 +36,18 @@ class AddTodo extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.state.content.trim()) {
-      this.props.addTodo(this.state);
+      this.props.addTodo({
+        ...this.state,
+        due: this.state.due
+      });
       this.setState({
         content: "",
-        date: ""
+        date: "",
+        due: null
       });
     }
   };
+  
   render() {
     return (
       // 1. When rendering a component, you can render as many elements as you like as long as it is wrapped inside
@@ -49,6 +64,16 @@ class AddTodo extends Component {
           onChange={this.handleChange}
           value={this.state.content}
         />
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DesktopDatePicker
+            id="new-item-date"
+            label="Due Date"
+            value={this.state.due}
+            onChange={this.handleDateChange}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </LocalizationProvider>
+
         <Button
           style={{ marginLeft: "10px" }}
           onClick={this.handleSubmit}
